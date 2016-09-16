@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: Av+Gr3r6+6edDaEm6iQYfpckYob4leCL+DKRqtJVonteeCUBjAOFB135USxnYims6aUtbFURGL/x6iLZyZnPE1Jkqqs7LBLYWP4JULoAD6Ct5QCwdNYYAykEE8mPysj0dd9TxKjfCpxTc4G/rjYtmmORTs1bg3ZRH5YGPmb4ltXhNBCRAT8e0vpJ/3zh5I5Cgsr/Do955Nf/07QNQXczSzIaAwtEQLpC8SVtQHnHKODtj2XJNlcqp5msQ4Bbj/H3BoOjtPpwslR2pN9++MbNTvrYQ1KVOk0lmFnO47USfvFgd4OYqj7lIKh/pOEtqLqZ2Jzq5QlHxcqboavye6bsy25Cvso70o6YeyRDNddDVrUJvOtdSH3nHD8cdTXTeWQ4NUx/Z3hqLFaJDI+ZrDPAZ7RQmwiwaN9xifGtWxP1tPRLhFoHZ/xHE7qPfq67v7doteQNwyUhp0QYO0UjD10cB15juAmYlpKIH3yBYsXJkeqV/+di9OdI9XiqUTKbv/jQ+kQ+B4rd064dPM9nSlMXz+r9ZSq83IJGU3VfC7UVd5cvQYi33pA9eLQd95Q1wzUYzBb5KPrk9ZWWY09LPi3Rk0/xWOp2qiWfMeN5S5y22gCNDuEFH07YR/LLQEa2V06ovL5ZONrCZh6BQfjC9tqrguUbk50ivtROsMm0lx5Dxcg=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/A-Romance-of-Youth-Volume-2_3959
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
